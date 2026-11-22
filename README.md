@@ -4,6 +4,10 @@ Qui si raccolgono le versioni candidate e gli esiti delle prove. Il catalogo gio
 
 ## Versioni da provare
 
+### Bolle di Pelo · prototipo 0.1.0
+
+[Gioca a Bolle di Pelo](https://frengo1972.github.io/sala-zero-playtest/bolle-di-pelo/), inviato il 22 novembre 2026 (laboratorio `3b1f055`, ramo `playtest` `1fc7aef`). Gestionale a turni per tutti: un negozio di toelettatura per cani, gatti e coniglietti. Grafica provvisoria, niente audio: si prova solo la meccanica. Da provare in particolare: se si capisce perché un giorno si guadagna o si perde, se i consigli aiutano a cambiare prezzi e squadra, se crescere (aiutanti, postazioni, trasloco) è una scelta interessante e se la partita da 30 giornate ha la durata giusta. Salvataggio dedicato `bolle-di-pelo-v1-playtest`.
+
 ### Impero a luci rosse V2 · 18+
 
 [Gioca a Impero a luci rosse V2](https://frengo1972.github.io/sala-zero-playtest/impero-luci-rosse-v2/) e prova la classifica ospite. Il sito di test viene pubblicato dal ramo `playtest`. Le partite e i profili ospite di prova hanno chiavi di salvataggio dedicate.
