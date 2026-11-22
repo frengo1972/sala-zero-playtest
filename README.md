@@ -4,16 +4,16 @@ Qui si raccolgono le versioni candidate e gli esiti delle prove. Il catalogo gio
 
 ## Versioni da provare
 
-### Pettea 0.2.0 (22 novembre 2026)
+### Pettea 0.3.0 (22 novembre 2026)
 
-[Gioca a Pettea](https://frengo1972.github.io/sala-zero-playtest/pettea/). Gestionale per tutti, grafica provvisoria. Novità: giornata da 2 minuti, passanti che guardano il menù e rinunciano, clienti che si stufano e si arrabbiano, mance in monetine, ciotola che si compone, carillon e musica, pausa (tasto P) e impostazioni audio. Da provare in particolare:
+[Gioca a Pettea](https://frengo1972.github.io/sala-zero-playtest/pettea/). Gestionale per tutti, ora con la grafica definitiva del capitolo 1: ingredienti kawaii, ciotola che si compone, clienti in quattro umori, gattino personalizzabile, Dottoressa Gufa, lungomare e bancone. Restano giornata da 2 minuti, passanti, monetine, carillon, musica e pausa (tasto P). Da provare in particolare:
 
-- se il ritmo di 2 minuti è giusto, su telefono e con la tastiera (1–9, Invio, Backspace, P);
-- se si capisce perché un passante rinuncia e un cliente si stufa;
-- se musica e carillon sono piacevoli o stancano, e se le impostazioni funzionano;
-- se mercato, prezzo e conti della sera si capiscono senza spiegazioni.
+- se ordini e ingredienti si riconoscono bene a colpo d'occhio, anche su schermi piccoli;
+- se gli umori dei clienti si capiscono prima che se ne vadano;
+- se i colori del pelo e gli accessori del gattino stanno bene;
+- tempi di caricamento su rete mobile (circa 0,7 MB di immagini).
 
-La partita di prova usa salvataggi dedicati (`pettea-v1-playtest`); quelli della 0.1.0 restano validi. Origine: commit `17c98ec` del laboratorio, commit `43b7206` del ramo `playtest`.
+La partita di prova usa salvataggi dedicati (`pettea-v1-playtest`); quelli delle versioni precedenti restano validi. Origine: commit `32696b0` del laboratorio, commit `569c2cc` del ramo `playtest`. Immagini generate con ChatGPT (OpenAI) per Sala Zero.
 
 ### Impero a luci rosse V2 · 18+
 
