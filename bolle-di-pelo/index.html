@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fdeef4">
+  <meta name="description" content="Bolle di Pelo: gestisci un negozio di toelettatura per cani, gatti e coniglietti. Scegli prezzi, pubblicità, aiutanti e locale, e fai quadrare i conti.">
+  <title>Bolle di Pelo · Sala Zero</title>
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+  <main id="app">
+    <section id="schermoTitolo" class="schermo titolo" aria-labelledby="titoloGioco">
+      <a class="indietro" href="../">← Sala Zero</a>
+      <div class="logo">
+        <div id="parataTitolo" class="parata" aria-hidden="true"></div>
+        <h1 id="titoloGioco">Bolle di Pelo</h1>
+        <p class="sottotitolo">La toelettatura più tenera della città</p>
+      </div>
+      <div class="menu">
+        <button id="btnContinua" class="primario" type="button" hidden>Continua</button>
+        <button id="btnNuova" class="primario" type="button">Nuova partita</button>
+        <button id="btnGuida" type="button">Come si gioca</button>
+        <button id="btnAlbum" type="button">Album dei clienti</button>
+      </div>
+      <p class="nota">Prototipo 0.1.0 · grafica provvisoria</p>
+    </section>
+
+    <section id="schermoGestione" class="schermo gestione" hidden aria-label="Gestione del negozio">
+      <header class="hud">
+        <div><strong id="hudGiorno"></strong><small id="hudMese"></small></div>
+        <div class="hud-cassa"><small>Cassa</small><strong id="hudCassa"></strong></div>
+        <div><small>Stelle</small><strong id="hudStelle"></strong></div>
+        <div><small>Fedeli</small><strong id="hudFedeli"></strong></div>
+        <button id="btnMenu" class="piccolo" type="button" aria-label="Menù">☰</button>
+      </header>
+      <div id="vetrina" class="vetrina" aria-hidden="true"></div>
+      <p id="evento" class="evento" hidden></p>
+      <div id="pannelli"></div>
+      <div class="barra-apri">
+        <div id="pareggio" class="pareggio"></div>
+        <button id="btnApri" class="primario grande" type="button">Apri il negozio ▶</button>
+      </div>
+    </section>
+
+    <section id="schermoGiornata" class="schermo giornata" hidden aria-label="Giornata in negozio">
+      <header class="hud">
+        <div><strong id="gioGiorno"></strong></div>
+        <div class="tempo"><small>Tempo di lavoro</small><div class="barra"><span id="gioTempo"></span></div></div>
+        <div class="hud-cassa"><small>Incasso</small><strong id="gioIncasso">0 €</strong></div>
+      </header>
+      <div id="coda" class="coda" aria-live="polite"></div>
+      <div class="legenda">😊 contento · 😐 scontento · 💸 troppo caro · ⏰ non c'era tempo · ⭐ fedele</div>
+      <button id="btnSalta" class="grande" type="button">Vai al resoconto ▶▶</button>
+    </section>
+
+    <section id="schermoResoconto" class="schermo resoconto" hidden aria-label="Resoconto">
+      <div id="resoconto"></div>
+      <button id="btnAvanti" class="primario grande" type="button">Continua ▶</button>
+    </section>
+  </main>
+
+  <dialog id="finestra">
+    <div id="finestraCorpo"></div>
+    <form method="dialog"><button class="primario" value="ok">Chiudi</button></form>
+  </dialog>
+
+  <script src="js/dati.js"></script>
+  <script src="js/economia.js"></script>
+  <script src="js/animali.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
