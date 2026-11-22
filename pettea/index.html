@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff3dc">
+  <meta name="robots" content="noindex,follow">
+  <meta name="description" content="Pettea: gestisci un chiosco di poke in una città di animaletti. Scegli i prezzi, compra le scorte, servi i clienti e impara a leggere i conti.">
+  <title>Pettea · Sala Zero</title>
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+  <main id="app">
+    <section id="schermoTitolo" class="schermo titolo" aria-labelledby="titoloGioco">
+      <a class="indietro" href="../">← Playtest</a>
+      <div class="logo">
+        <div id="anteprimaTitolo" class="avatar-grande"></div>
+        <h1 id="titoloGioco">Pettea</h1>
+        <p class="sottotitolo">Il chiosco degli animaletti</p>
+      </div>
+      <div class="menu">
+        <button id="btnCarriera" class="primario" type="button">Inizia la carriera</button>
+        <button id="btnNuova" type="button" hidden>Nuova carriera</button>
+        <button id="btnSfida" type="button">Sfida della settimana</button>
+        <button id="btnAspetto" type="button">Il mio animaletto</button>
+        <button id="btnGuida" type="button">Come si gioca</button>
+      </div>
+      <p class="nota">Playtest · prototipo del capitolo 1 · grafica provvisoria<br><a href="https://github.com/frengo1972/sala-zero-playtest/issues/new">Segnala un problema</a></p>
+    </section>
+
+    <section id="schermoServizio" class="schermo servizio" hidden aria-label="Servizio">
+      <header class="hud">
+        <div><span id="hudGiorno">Giorno 1</span><small id="hudSettimana"></small></div>
+        <div class="tempo" aria-hidden="true"><span id="hudTempo"></span></div>
+        <div id="hudCassa" class="cassa"></div>
+        <div id="hudStelle" class="stelle"></div>
+      </header>
+      <div id="coda" class="coda" aria-live="polite"></div>
+      <div class="bancone">
+        <div id="chef" class="chef"></div>
+        <div class="ciotola-box">
+          <div id="ciotola" class="ciotola" aria-label="Ciotola"></div>
+          <div class="azioni">
+            <button id="btnButta" type="button" title="Backspace">Butta</button>
+            <button id="btnServi" class="primario" type="button" title="Invio">Servi</button>
+          </div>
+        </div>
+      </div>
+      <div id="ingredienti" class="ingredienti"></div>
+    </section>
+
+    <section id="schermoSera" class="schermo sera" hidden aria-labelledby="titoloSera">
+      <header class="sera-top">
+        <h2 id="titoloSera">Sera</h2>
+        <div id="seraCassa" class="cassa"></div>
+      </header>
+      <nav class="schede" role="tablist" aria-label="Pannelli della sera">
+        <button role="tab" data-scheda="giornata" type="button">Giornata</button>
+        <button role="tab" data-scheda="mercato" type="button">Mercato</button>
+        <button role="tab" data-scheda="prezzo" type="button">Prezzo</button>
+        <button role="tab" data-scheda="conti" type="button">Conti</button>
+        <button role="tab" data-scheda="quaderno" type="button">Quaderno</button>
+        <button role="tab" data-scheda="aspetto" type="button">Aspetto</button>
+        <button role="tab" data-scheda="record" type="button">Record</button>
+      </nav>
+      <div id="pannello" class="pannello" role="tabpanel"></div>
+      <footer class="sera-azioni">
+        <button id="btnMenu" type="button">Menu</button>
+        <button id="btnApri" class="primario" type="button">Apri il chiosco ▶</button>
+      </footer>
+    </section>
+    <div id="toast" class="toast" role="status"></div>
+  </main>
+
+  <dialog id="finestra" class="finestra"><div id="finestraCorpo"></div></dialog>
+
+  <script src="js/dati.js"></script>
+  <script src="js/economia.js"></script>
+  <script src="js/avatar.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
