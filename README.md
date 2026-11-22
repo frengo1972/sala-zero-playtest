@@ -4,7 +4,7 @@ Qui si raccolgono le versioni candidate e gli esiti delle prove. Il catalogo gio
 
 ## Versioni da provare
 
-Nessuna versione candidata disponibile al momento. Quando una prova è aperta, trova il pacchetto della versione in [Releases](https://github.com/frengo1972/sala-zero-playtest/releases). Le note della versione indicano i controlli da eseguire e come avviare il gioco. Un gioco con file separati va servito da un server statico locale, per esempio eseguendo `python -m http.server 8000` nella cartella estratta e aprendo `http://localhost:8000`.
+[Gioca a Impero a luci rosse V2](https://frengo1972.github.io/sala-zero-playtest/impero-luci-rosse-v2/) e prova la classifica ospite. Il sito di test viene pubblicato dal ramo `playtest`. Le partite e i profili ospite di prova hanno chiavi di salvataggio dedicate.
 
 ## Segnalazioni
 
