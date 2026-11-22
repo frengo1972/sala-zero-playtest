@@ -4,16 +4,16 @@ Qui si raccolgono le versioni candidate e gli esiti delle prove. Il catalogo gio
 
 ## Versioni da provare
 
-### Pettea 0.1.0 · prototipo del capitolo 1 (22 novembre 2026)
+### Pettea 0.2.0 (22 novembre 2026)
 
-[Gioca a Pettea](https://frengo1972.github.io/sala-zero-playtest/pettea/). Gestionale per tutti, grafica provvisoria. Da provare in particolare:
+[Gioca a Pettea](https://frengo1972.github.io/sala-zero-playtest/pettea/). Gestionale per tutti, grafica provvisoria. Novità: giornata da 2 minuti, passanti che guardano il menù e rinunciano, clienti che si stufano e si arrabbiano, mance in monetine, ciotola che si compone, carillon e musica, pausa (tasto P) e impostazioni audio. Da provare in particolare:
 
-- se il servizio è chiaro entro i primi tre clienti, su telefono e con la tastiera (1–9, Invio, Backspace);
-- se mercato, prezzo e conti della sera si capiscono senza spiegazioni;
-- se dopo il primo mese viene voglia di giocarne un secondo;
-- la sfida della settimana e i record locali.
+- se il ritmo di 2 minuti è giusto, su telefono e con la tastiera (1–9, Invio, Backspace, P);
+- se si capisce perché un passante rinuncia e un cliente si stufa;
+- se musica e carillon sono piacevoli o stancano, e se le impostazioni funzionano;
+- se mercato, prezzo e conti della sera si capiscono senza spiegazioni.
 
-La partita di prova usa salvataggi dedicati (`pettea-v1-playtest`). Origine: commit `a94a350` del laboratorio, commit `5661d3d` del ramo `playtest`.
+La partita di prova usa salvataggi dedicati (`pettea-v1-playtest`); quelli della 0.1.0 restano validi. Origine: commit `17c98ec` del laboratorio, commit `43b7206` del ramo `playtest`.
 
 ### Impero a luci rosse V2 · 18+
 
