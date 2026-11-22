@@ -181,9 +181,12 @@ const PetteaEconomia = (() => {
       if (v.dado < probAcquisto(s, v.tipo)) compratori.push(v);
       else rinunce[v.tipo] = (rinunce[v.tipo] || 0) + 1;
     }
-    const span = D.durataServizio - 15;
-    compratori.forEach((c, i) => { c.arrivo = 3 + i * span / Math.max(1, compratori.length) + c.jitter * 3; });
-    return { giorno: g, visitatori: n, compratori, rinunce, guardano };
+    const span = D.durataServizio - 12;
+    compratori.forEach((c, i) => { c.arrivo = 2 + i * span / Math.max(1, compratori.length) + c.jitter * 2; });
+    // chi rinuncia passa davanti al chiosco, guarda il menù e se ne va (solo scena, non cambia i conti)
+    const passanti = pool.slice(0, n).filter(v => !compratori.includes(v));
+    passanti.forEach((v, i) => { v.passa = 4 + (i + v.jitter) * span / Math.max(1, passanti.length); });
+    return { giorno: g, visitatori: n, compratori, rinunce, guardano, passanti };
   }
 
   // ---------- Servizio ----------

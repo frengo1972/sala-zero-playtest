@@ -13,7 +13,8 @@
   // ---------- Salvataggi ----------
   const CHIAVI = {
     carriera: D.salvataggio, sfida: `${D.salvataggio}-sfida`,
-    avatar: `${D.salvataggio}-avatar`, record: `${D.salvataggio}-record`
+    avatar: `${D.salvataggio}-avatar`, record: `${D.salvataggio}-record`,
+    impostazioni: `${D.salvataggio}-impostazioni`
   };
   function leggi(k, def = null) {
     try { const v = JSON.parse(localStorage.getItem(k)); return v ?? def; } catch { return def; }
@@ -32,23 +33,15 @@
     coloreAcc: D.coloriAccessorio.find(c => c.id === avatar.coloreAcc).colore
   });
 
-  // ---------- Suoni ----------
-  let ac;
-  function suono(tipo) {
-    try {
-      ac ??= new (window.AudioContext || window.webkitAudioContext)();
-      if (ac.state === "suspended") ac.resume();
-      const note = { tocca: [660, 0.05], cassa: [880, 0.08, 1320], errore: [200, 0.18], via: [330, 0.12, 220] }[tipo];
-      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
-      o.type = "triangle";
-      o.frequency.setValueAtTime(note[0], t);
-      if (note[2]) o.frequency.setValueAtTime(note[2], t + note[1]);
-      g.gain.setValueAtTime(0.12, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + note[1] * 2.2);
-      o.connect(g).connect(ac.destination);
-      o.start(t);
-      o.stop(t + note[1] * 2.3);
-    } catch { /* audio non disponibile */ }
+  // ---------- Impostazioni e audio ----------
+  let imp = leggi(CHIAVI.impostazioni, { musica: true, suoni: true });
+  PetteaAudio.imposta(imp);
+  const suono = tipo => PetteaAudio.effetto(tipo);
+
+  function impostazioniHtml() {
+    return `<div class="scelte impostazioni">
+      <button type="button" data-imp="musica" aria-pressed="${imp.musica}">♪ Musica</button>
+      <button type="button" data-imp="suoni" aria-pressed="${imp.suoni}">♫ Suoni</button></div>`;
   }
 
   // ---------- Stato della partita ----------
@@ -84,14 +77,16 @@
   function avvia(modo, nuova = false) {
     if (modo === "carriera") {
       s = !nuova && leggi(CHIAVI.carriera);
-      if (!s || s.versione !== D.versione) s = E.nuovoStato({ modo });
+      if (!s || !Array.isArray(s.lotti)) s = E.nuovoStato({ modo });
     } else {
       const seme = E.semeSfida();
       s = leggi(CHIAVI.sfida);
-      if (!s || s.seme !== seme || s.giorno > D.giorniMese || s.versione !== D.versione) s = E.nuovoStato({ modo, seme });
+      if (!s || s.seme !== seme || s.giorno > D.giorniMese || !Array.isArray(s.lotti)) s = E.nuovoStato({ modo, seme });
     }
+    s.versione = D.versione;
     salva();
     scheda = "giornata";
+    PetteaAudio.avviaMusica();
     apriSera();
     if (s.giorno === 1) benvenuto();
   }
@@ -184,7 +179,7 @@
       const disp = E.disponibile(s, i.id);
       const domani = s.lotti.filter(l => l.id === i.id && l.scade === s.giorno).reduce((t, l) => t + l.q, 0);
       return `<div class="riga-mercato">
-        <div><strong><span class="pallino" style="background:${i.colore};display:inline-block"></span> ${i.nome}</strong>
+        <div><strong class="nome-mercato"><span class="icona-mini">${A.ingrediente(i.id)}</span> ${i.nome}</strong>
           <div class="info">In scorta: ${disp}${domani ? ` · <span class="negativo">${domani} scadono domani sera</span>` : ""} · dura ${i.durata} ${i.durata === 1 ? "giorno" : "giorni"} · ${eur(prezzi[i.id])} a porzione · ${quota[i.cat]} a ciotola</div></div>
         <button type="button" data-compra="${i.id}">+${i.lotto} · ${eur(prezzi[i.id] * i.lotto)}</button>
       </div>`;
@@ -304,6 +299,13 @@
   }
 
   function collegaPannello() {
+    for (const b of document.querySelectorAll("[data-imp]")) b.onclick = () => {
+      imp[b.dataset.imp] = !imp[b.dataset.imp];
+      scrivi(CHIAVI.impostazioni, imp);
+      PetteaAudio.imposta(imp);
+      if (imp.musica && s) PetteaAudio.avviaMusica();
+      b.setAttribute("aria-pressed", imp[b.dataset.imp]);
+    };
     for (const b of document.querySelectorAll("[data-compra]")) b.onclick = () => {
       const esito = E.compra(s, b.dataset.compra);
       if (!esito.ok) {
@@ -312,7 +314,7 @@
         avviso({ frigo: "Il frigo è pieno.", dispensa: "La dispensa è piena.", cassa: "Non hai abbastanza soldi in cassa." }[esito.motivo]);
         return;
       }
-      suono("cassa");
+      suono("compra");
       salva();
       disegnaSchede();
     };
@@ -363,21 +365,32 @@
       <p><strong>La sera</strong> compri le scorte al mercato (i freschi scadono!), scegli il prezzo e guardi i conti con la Dottoressa Gufa.</p>
       <p><strong>Ogni 10 giornate</strong> chiudi il mese: il conto economico ti dice quanto hai guadagnato davvero, e una medaglia premia i mesi migliori.</p>
       <p><strong>Sfida della settimana:</strong> lo stesso mese per tutti, con gli stessi clienti. Puoi rigiocarla quante volte vuoi.</p>
-      <p class="spiega">Tastiera: 1–9 ingredienti, Invio serve, Backspace butta. La partita si salva su questo dispositivo alla fine di ogni giornata.</p>`);
+      <p class="spiega">Tastiera: 1–9 ingredienti, Invio serve, Backspace butta, P mette in pausa. La partita si salva su questo dispositivo alla fine di ogni giornata.</p>`);
   }
 
   // ---------- Servizio ----------
+  let inizioGiornata = null, pausaManuale = false, prossimoPassante = 0, ultimoAggiunto = null;
+
   function apriChiosco() {
+    inizioGiornata = JSON.stringify(s);
     sv = E.creaServizio(s);
     ciotola = [];
+    ultimoAggiunto = null;
+    prossimoPassante = 0;
+    visti.clear();
     mostra("schermoServizio");
     $("hudGiorno").textContent = `Giorno ${s.giorno}`;
-    $("hudSettimana").textContent = nomeGiorno(s.giorno) + (E.weekend(s.giorno) ? " · fine settimana" : "");
+    $("hudSettimana").textContent = nomeGiorno(s.giorno) + (E.weekend(s.giorno) ? " · fine sett." : "");
+    $("lavagnaPrezzo").textContent = eur(s.prezzo);
     $("chef").innerHTML = avatarSvg();
+    $("effetti").innerHTML = "";
+    $("strada").querySelectorAll(".passante").forEach(el => el.remove());
     disegnaIngredienti();
     disegnaCiotola();
     disegnaCoda();
     inPausa = false;
+    pausaManuale = false;
+    PetteaAudio.avviaMusica();
     ultimoT = performance.now();
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(ciclo);
@@ -390,16 +403,22 @@
       const eventi = E.tick(sv, dt);
       let ridisegna = false;
       for (const e of eventi) {
-        if (e.tipo === "arrivo") ridisegna = true;
+        if (e.tipo === "arrivo") { ridisegna = true; suono("arrivo"); }
         if (e.tipo === "persoCoda") avviso("Coda piena: un cliente passa oltre");
-        if (e.tipo === "impaziente") { avviso("Un cliente ha perso la pazienza ★"); suono("via"); ridisegna = true; }
-        if (e.tipo === "esaurito") { avviso("Manca un ingrediente: il cliente se ne va"); suono("via"); ridisegna = true; disegnaIngredienti(); }
+        if (e.tipo === "impaziente") { esci(e.c.n, "arrabbiato"); avviso("Un cliente si è stufato! ★"); suono("arrabbiato"); ridisegna = true; }
+        if (e.tipo === "esaurito") { esci(e.c.n, "stufo", "Finito?"); avviso("Manca un ingrediente: il cliente se ne va"); suono("errore"); ridisegna = true; disegnaIngredienti(); }
       }
+      const passanti = sv.piano.passanti || [];
+      while (prossimoPassante < passanti.length && passanti[prossimoPassante].passa <= sv.t) passante(passanti[prossimoPassante++]);
       if (ridisegna) disegnaCoda();
       aggiornaHud();
       if (sv.fine) return fineGiornata();
     }
     raf = requestAnimationFrame(ciclo);
+  }
+
+  function umoreDi(f) {
+    return f > 0.6 ? "felice" : f > 0.3 ? "neutro" : "stufo";
   }
 
   function aggiornaHud() {
@@ -408,11 +427,19 @@
     $("hudCassa").textContent = eur(s.cassa);
     $("hudStelle").textContent = stelleTesto(E.valutazione(s));
     for (const c of sv.coda) {
-      const el = document.querySelector(`[data-cliente="${c.n}"] .pazienza`);
+      const el = document.querySelector(`#coda [data-cliente="${c.n}"]`);
       if (!el) continue;
       const f = Math.max(0, c.restante / D.pazienza);
-      el.firstElementChild.style.width = `${f * 100}%`;
-      el.classList.toggle("bassa", f < 0.5);
+      const barra = el.querySelector(".pazienza");
+      barra.firstElementChild.style.width = `${f * 100}%`;
+      barra.classList.toggle("bassa", f < 0.5);
+      const umore = umoreDi(f);
+      if (el.dataset.umore !== umore) {
+        el.dataset.umore = umore;
+        const tipo = E.TIPI[c.tipo];
+        el.querySelector(".faccia").innerHTML = A.cliente(tipo.animale, umore, tipo.id);
+        el.classList.toggle("stufo", umore === "stufo");
+      }
     }
   }
 
@@ -426,13 +453,13 @@
       const entra = visti.has(c.n) ? "" : " entra";
       visti.add(c.n);
       const voci = c.ordine.map(id => {
-        const ing = E.ING[id];
         const ok = i === 0 && ciotola.includes(id) ? " ok" : "";
-        return `<span class="voce${ok}"><span class="pallino" style="background:${ing.colore}"></span>${ing.breve}</span>`;
+        return `<span class="voce${ok}">${A.ingrediente(id)}</span>`;
       }).join("");
-      html.push(`<div class="cliente${i === 0 ? " primo" : ""}${entra}" data-cliente="${c.n}">
-        <div class="nuvoletta">${voci}</div>
-        <div class="faccia">${A.cliente(tipo.animale)}</div>
+      const umore = umoreDi(c.restante / D.pazienza);
+      html.push(`<div class="cliente${i === 0 ? " primo" : ""}${entra}${umore === "stufo" ? " stufo" : ""}" data-cliente="${c.n}" data-umore="${umore}">
+        <div class="nuvoletta" aria-label="Ordine: ${c.ordine.map(id => E.ING[id].nome).join(", ")}">${voci}</div>
+        <div class="faccia">${A.cliente(tipo.animale, umore, tipo.id)}</div>
         <div class="pazienza"><span></span></div>
         <div class="tipo-cliente">${tipo.singolare}</div></div>`);
     }
@@ -440,27 +467,116 @@
     aggiornaHud();
   }
 
+  // Un cliente lascia la coda: la sua figura esce dalla scena con un'animazione
+  function esci(n, umore, frase = "") {
+    const el = document.querySelector(`#coda [data-cliente="${n}"]`);
+    if (!el) return null;
+    const scena = $("scena").getBoundingClientRect(), r = el.getBoundingClientRect();
+    const tipo = E.TIPI[sv.piano.compratori.find(c => c.n === n)?.tipo] || E.TIPI.studente;
+    const g = document.createElement("div");
+    g.className = `fantasma ${umore}`;
+    g.style.left = `${r.left - scena.left}px`;
+    g.style.top = `${el.querySelector(".faccia").getBoundingClientRect().top - scena.top}px`;
+    g.style.width = `${r.width}px`;
+    const nuvola = umore === "arrabbiato" ? `<div class="rabbia">${A.nuvolaRabbia()}</div>` : frase ? `<div class="pensiero">${frase}</div>` : "";
+    g.innerHTML = `${nuvola}<div class="faccia">${A.cliente(tipo.animale, umore === "felice" ? "felice" : umore, tipo.id)}</div>`;
+    $("effetti").append(g);
+    const dx = umore === "felice" ? -scena.width : scena.width;
+    const passi = umore === "arrabbiato"
+      ? [{ transform: "translate(0,0)" }, { transform: "translate(-4px,0) rotate(-6deg)", offset: 0.15 }, { transform: "translate(4px,0) rotate(6deg)", offset: 0.3 },
+        { transform: "translate(0,0)", offset: 0.45 }, { transform: `translate(${dx}px, 6px)`, opacity: 0.2 }]
+      : [{ transform: "translate(0,0)" }, { transform: "translate(0,-14px)", offset: 0.2 }, { transform: "translate(0,0)", offset: 0.35 },
+        { transform: `translate(${dx * 0.5}px,-10px)`, offset: 0.65 }, { transform: `translate(${dx}px,0)`, opacity: 0.2 }];
+    g.animate(passi, { duration: umore === "arrabbiato" ? 1600 : 1200, easing: "ease-in" }).onfinish = () => g.remove();
+    return r;
+  }
+
+  const FRASI_PASSANTI = {
+    studente: ["Troppo caro per me!", "Mmh… costa troppo"], sportivo: ["Un'altra volta!", "Troppo caro"],
+    famiglia: ["In quattro costa troppo!", "Mmh… no"], turista: ["Carino… ma no", "Più tardi!"]
+  };
+
+  // Un passante guarda il menù, rinuncia e se ne va
+  function passante(p) {
+    const tipo = E.TIPI[p.tipo];
+    const strada = $("strada"), w = strada.clientWidth;
+    const el = document.createElement("div");
+    el.className = "passante";
+    const frase = FRASI_PASSANTI[p.tipo][Math.floor(p.jitter * 2)];
+    el.innerHTML = `<div class="pensiero" hidden>${frase}</div><div class="faccia">${A.cliente(tipo.animale, "felice", tipo.id)}</div>`;
+    strada.append(el);
+    const sosta = w * 0.62;
+    el.animate([
+      { transform: "translateX(-70px)" }, { transform: `translateX(${sosta}px)`, offset: 0.4 },
+      { transform: `translateX(${sosta}px)`, offset: 0.7 }, { transform: `translateX(${w + 20}px)` }
+    ], { duration: 5200, easing: "linear" }).onfinish = () => el.remove();
+    setTimeout(() => {
+      if (!el.isConnected) return;
+      el.querySelector(".pensiero").hidden = false;
+      el.querySelector(".faccia").innerHTML = A.cliente(tipo.animale, "neutro", tipo.id);
+      el.classList.add("no");
+    }, 2100);
+    setTimeout(() => { if (el.isConnected) el.querySelector(".pensiero").hidden = true; }, 3700);
+  }
+
+  // Le monetine della mancia saltano fuori e volano da sole in cassa
+  function monete(r, mancia, incasso) {
+    if (!r) return;
+    const cassa = $("hudCassa").getBoundingClientRect();
+    const testo = document.createElement("div");
+    testo.className = "galleggia";
+    testo.textContent = `+${eur(incasso)}`;
+    testo.style.left = `${r.left + r.width / 2}px`;
+    testo.style.top = `${r.top + 40}px`;
+    document.body.append(testo);
+    testo.animate([{ transform: "translate(-50%,0)", opacity: 1 }, { transform: "translate(-50%,-50px)", opacity: 0 }], { duration: 1100 }).onfinish = () => testo.remove();
+    const n = Math.min(5, Math.ceil(mancia / 50));
+    for (let i = 0; i < n; i++) {
+      const m = document.createElement("div");
+      m.className = "moneta";
+      m.innerHTML = A.moneta();
+      const x0 = r.left + r.width / 2 - 14 + (i - (n - 1) / 2) * 22, y0 = r.top + r.height * 0.55;
+      m.style.left = `${x0}px`;
+      m.style.top = `${y0}px`;
+      document.body.append(m);
+      const tx = cassa.left + cassa.width / 2 - x0 - 14, ty = cassa.top - y0;
+      m.animate([
+        { transform: "translate(0,0) scale(.3)", opacity: 0 },
+        { transform: `translate(${(i - (n - 1) / 2) * 6}px,-36px) scale(1)`, opacity: 1, offset: 0.25 },
+        { transform: "translate(0,-20px) scale(1)", offset: 0.5 },
+        { transform: `translate(${tx}px,${ty}px) scale(.5)`, opacity: 0.9 }
+      ], { duration: 1300 + i * 120, easing: "ease-in-out" }).onfinish = () => {
+        m.remove();
+        suono("moneta");
+        $("hudCassa").animate([{ transform: "scale(1)" }, { transform: "scale(1.15)" }, { transform: "scale(1)" }], { duration: 250 });
+      };
+    }
+  }
+
   function disegnaIngredienti() {
     $("ingredienti").innerHTML = D.ingredienti.map((i, k) => {
       const q = E.disponibile(s, i.id);
-      return `<button type="button" class="ingrediente${ciotola.includes(i.id) ? " scelto" : ""}${q < 3 ? " poco" : ""}" data-ing="${i.id}" ${q === 0 ? "disabled" : ""} aria-label="${i.nome}, ${q} porzioni">
+      return `<button type="button" class="ingrediente${ciotola.includes(i.id) ? " scelto" : ""}${i.id === ultimoAggiunto ? " nuovo" : ""}${q < 3 ? " poco" : ""}" data-ing="${i.id}" ${q === 0 ? "disabled" : ""} aria-label="${i.nome}, ${q} porzioni">
         <span class="tasto">${k + 1}</span><span class="qta">${q}</span>
-        <span class="bollo" style="background:${i.colore}"></span><span class="nome">${i.breve}</span></button>`;
+        <span class="icona">${A.ingrediente(i.id)}</span><span class="nome">${i.breve}</span></button>`;
     }).join("");
     for (const b of document.querySelectorAll("[data-ing]")) b.onclick = () => scegli(b.dataset.ing);
   }
 
   function disegnaCiotola() {
-    $("ciotola").innerHTML = ciotola.map(id => `<span class="chip"><span class="pallino" style="background:${E.ING[id].colore}"></span>${E.ING[id].breve}</span>`).join("");
+    $("ciotola").innerHTML = A.ciotola(ciotola, ultimoAggiunto);
+    $("ciotola").setAttribute("aria-label", ciotola.length ? `Ciotola: ${ciotola.map(id => E.ING[id].nome).join(", ")}` : "Ciotola vuota");
     $("btnServi").disabled = ciotola.length === 0 || sv.coda.length === 0;
     $("btnButta").disabled = ciotola.length === 0;
   }
 
   function scegli(id) {
-    if (!sv || sv.fine) return;
+    if (!sv || sv.fine || inPausa) return;
     const ing = E.ING[id];
     if (ciotola.includes(id)) {
       ciotola = ciotola.filter(x => x !== id);
+      ultimoAggiunto = null;
+      suono("tocca");
     } else {
       if (E.disponibile(s, id) === 0) return;
       if (ing.cat === "topping") {
@@ -471,43 +587,82 @@
       ciotola.push(id);
       const ordineCat = D.categorie.map(c => c.id);
       ciotola.sort((a, b) => ordineCat.indexOf(E.ING[a].cat) - ordineCat.indexOf(E.ING[b].cat));
+      ultimoAggiunto = id;
+      PetteaAudio.ingrediente(ciotola.length - 1);
     }
-    suono("tocca");
     disegnaCiotola();
     disegnaIngredienti();
     disegnaCoda();
   }
 
   function servi() {
-    if (!sv || !ciotola.length || !sv.coda.length) return;
+    if (!sv || inPausa || !ciotola.length || !sv.coda.length) return;
+    const n = sv.coda[0].n;
     const r = E.servi(sv, ciotola);
     if (!r.ok) { avviso("Mancano degli ingredienti"); return; }
+    $("ciotola").firstElementChild?.animate([{ transform: "translateY(0)", opacity: 1 }, { transform: "translateY(-60px) scale(.6)", opacity: 0 }], { duration: 300 });
     ciotola = [];
+    ultimoAggiunto = null;
+    const rect = esci(n, r.giusto ? "felice" : "stufo", r.giusto ? "" : "Non è giusta!");
     if (r.giusto) {
-      suono("cassa");
-      avviso(`+${eur(r.incasso)}${r.mancia ? ` · mancia ${eur(r.mancia)}` : ""} · ${"★".repeat(r.stelle)}`);
+      suono("servi");
+      monete(rect, r.mancia, r.incasso);
+      avviso(`${"★".repeat(r.stelle)}${r.mancia ? ` · mancia ${eur(r.mancia)}` : ""}`);
     } else {
       suono("errore");
+      monete(rect, 0, r.incasso);
       avviso(`Ciotola sbagliata: paga metà (${eur(r.incasso)}) · ★★`);
     }
-    disegnaCiotola();
+    setTimeout(() => { if (sv) { disegnaCiotola(); } }, 300);
     disegnaIngredienti();
     disegnaCoda();
   }
 
   function butta() {
-    if (!ciotola.length) return;
+    if (!sv || inPausa || !ciotola.length) return;
     const costo = E.butta(sv, ciotola);
     ciotola = [];
-    suono("errore");
+    ultimoAggiunto = null;
+    suono("butta");
     avviso(`Buttato: ${eur(costo)} di ingredienti`);
     disegnaCiotola();
     disegnaIngredienti();
     disegnaCoda();
   }
 
+  // ---------- Pausa ----------
+  function pausa() {
+    if (!sv || pausaManuale) return;
+    pausaManuale = true;
+    inPausa = true;
+    document.getAnimations().forEach(a => a.pause());
+    PetteaAudio.fermaMusica();
+    finestra(`<h2>Pausa</h2><p>Il tempo è fermo. I clienti aspettano.</p>${impostazioniHtml()}`, [
+      { testo: "Riprendi", primario: true },
+      { testo: "Esci al menu (la giornata riparte dalla sera)", azione: esciDallaGiornata }
+    ]);
+  }
+
+  function riprendi() {
+    if (!pausaManuale) return;
+    pausaManuale = false;
+    if (!sv) return;
+    inPausa = false;
+    ultimoT = performance.now();
+    document.getAnimations().forEach(a => a.play());
+    PetteaAudio.avviaMusica();
+  }
+
+  function esciDallaGiornata() {
+    cancelAnimationFrame(raf);
+    if (inizioGiornata) s = JSON.parse(inizioGiornata);
+    sv = null;
+    tornaMenu();
+  }
+
   function fineGiornata() {
     cancelAnimationFrame(raf);
+    inizioGiornata = null;
     const { fineMese } = E.chiudiGiornata(s, sv);
     sv = null;
     scheda = "giornata";
@@ -551,6 +706,7 @@
   function tornaMenu() {
     cancelAnimationFrame(raf);
     sv = null;
+    PetteaAudio.fermaMusica();
     aggiornaTitolo();
     mostra("schermoTitolo");
   }
@@ -568,10 +724,14 @@
   $("btnMenu").onclick = tornaMenu;
   $("btnServi").onclick = servi;
   $("btnButta").onclick = butta;
+  $("btnPausa").onclick = pausa;
+  $("btnImpostazioni").onclick = () => finestra(`<h2>Impostazioni</h2>${impostazioniHtml()}<p class="spiega">La musica e i suoni sono originali, generati dal gioco.</p>`);
+  $("finestra").addEventListener("close", riprendi);
   for (const b of document.querySelectorAll(".schede button")) b.onclick = () => { scheda = b.dataset.scheda; disegnaSchede(); };
 
   document.addEventListener("keydown", e => {
     if ($("schermoServizio").hidden || $("finestra").open || !sv) return;
+    if (e.key === "p" || e.key === "P" || e.key === "Escape") { pausa(); e.preventDefault(); return; }
     const n = Number(e.key);
     if (n >= 1 && n <= D.ingredienti.length) { scegli(D.ingredienti[n - 1].id); e.preventDefault(); }
     else if (e.key === "Enter") { servi(); e.preventDefault(); }
@@ -579,9 +739,7 @@
   });
 
   document.addEventListener("visibilitychange", () => {
-    if (!sv) return;
-    inPausa = document.hidden;
-    ultimoT = performance.now();
+    if (sv && document.hidden) pausa();
   });
 
   aggiornaTitolo();

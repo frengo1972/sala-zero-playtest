@@ -2,14 +2,14 @@
 
 // Dati di gioco di Pettea, capitolo 1. Gli importi sono in centesimi di euro.
 const PetteaDati = {
-  versione: "0.1.0",
+  versione: "0.2.0",
   salvataggio: "pettea-v1-playtest",
 
   giorniMese: 10,
-  durataServizio: 180,   // secondi di servizio per giornata
+  durataServizio: 120,   // secondi di servizio per giornata
   pazienza: 20,          // secondi prima che un cliente se ne vada
   codaMax: 4,
-  visitatoriBase: 30,    // passanti che guardano il menù, con 4 stelle
+  visitatoriBase: 21,    // passanti che guardano il menù, con 4 stelle
   cassaIniziale: 25000,
   prezzoIniziale: 1000,
   prezzoMin: 600,
@@ -44,14 +44,14 @@ const PetteaDati = {
     { id: "studente", nome: "Studenti", singolare: "Studente", animale: "criceto", rif: 9, sens: 1.6, peso: 35, pesoWeekend: 25 },
     { id: "sportivo", nome: "Sportivi", singolare: "Sportivo", animale: "cagnolino", rif: 11, sens: 1.1, peso: 25, pesoWeekend: 20 },
     { id: "famiglia", nome: "Famiglie", singolare: "Famiglia", animale: "ochetta", rif: 10, sens: 1.3, peso: 20, pesoWeekend: 25 },
-    { id: "turista", nome: "Turisti", singolare: "Turista", animale: "panda", rif: 13, sens: 0.6, peso: 20, pesoWeekend: 30 }
+    { id: "turista", nome: "Turisti", singolare: "Turista", animale: "orsetto", rif: 13, sens: 0.6, peso: 20, pesoWeekend: 30 }
   ],
 
   // obiettivi del mese, capitolo 1 (utile in centesimi)
   medaglie: [
-    { id: "oro", nome: "Oro", utile: 210000, stelle: 4.4 },
-    { id: "argento", nome: "Argento", utile: 150000, stelle: 4.0 },
-    { id: "bronzo", nome: "Bronzo", utile: 100000, stelle: 0 }
+    { id: "oro", nome: "Oro", utile: 155000, stelle: 4.4 },
+    { id: "argento", nome: "Argento", utile: 110000, stelle: 4.0 },
+    { id: "bronzo", nome: "Bronzo", utile: 70000, stelle: 0 }
   ],
 
   // Quaderno dell'imprenditrice: si sblocca un concetto alla volta

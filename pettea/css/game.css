@@ -49,42 +49,72 @@ h1, h2, h3 { margin: 0; }
 .nota { color: var(--tenue); font-size: .85rem; }
 
 /* Servizio */
-.servizio { gap: 10px; }
-.hud { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; font-weight: 800; }
+.servizio { gap: 8px; }
+.hud { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 8px; align-items: center; font-weight: 800; }
 .hud small { display: block; font-weight: 600; font-size: .75rem; color: var(--tenue); }
 .tempo { height: 12px; border: 2px solid var(--linea); border-radius: 8px; overflow: hidden; background: var(--carta); }
 .tempo span { display: block; height: 100%; background: var(--menta); transition: width .25s linear; }
 .cassa { background: var(--burro); border: 2px solid var(--linea); border-radius: 12px; padding: 2px 8px; font-weight: 800; white-space: nowrap; }
 .stelle { white-space: nowrap; }
 
-.coda { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; min-height: 196px; align-items: end; }
+.hud .pausa { min-height: 40px; min-width: 44px; padding: 4px 8px; font-size: .85rem; letter-spacing: -2px; }
+.scena { position: relative; overflow: hidden; border-radius: 18px; background: linear-gradient(#cdeffd 0 54px, #f7e7c9 54px); border: 2px solid var(--linea); padding: 0 6px 6px; }
+.strada { position: relative; height: 72px; }
+.strada::after { content: ""; position: absolute; left: -6px; right: -6px; bottom: 6px; height: 2px; background: #5a3d3d22; }
+.lavagna { position: absolute; right: 6px; top: 6px; width: 74px; padding: 4px 6px; background: #4d5b52; color: #fff; border: 3px solid #b08968; border-radius: 8px; text-align: center; line-height: 1.1; font-size: .7rem; z-index: 1; }
+.lavagna small { display: block; color: var(--burro); }
+.lavagna strong { display: block; font-size: .9rem; }
+.passante { position: absolute; left: 0; bottom: 4px; width: 40px; z-index: 2; }
+.passante .faccia { width: 40px; }
+.passante.no .faccia { animation: scuotiTesta .5s 2; }
+@keyframes scuotiTesta { 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+.pensiero { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #fff; border: 2px solid var(--linea); border-radius: 12px; padding: 2px 8px; font-size: .7rem; font-weight: 800; }
+.coda { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; min-height: 150px; align-items: end; }
+.effetti { position: absolute; inset: 0; pointer-events: none; }
+.fantasma { position: absolute; display: flex; flex-direction: column; align-items: center; }
+.fantasma .faccia { width: 60px; }
+.fantasma .rabbia { width: 54px; margin-bottom: -8px; animation: sbuffa .4s ease-out; }
+.fantasma .pensiero { position: static; transform: none; margin-bottom: 2px; }
+@keyframes sbuffa { from { transform: scale(.2); opacity: 0; } }
+.moneta { position: fixed; width: 28px; height: 28px; z-index: 50; pointer-events: none; }
+.galleggia { position: fixed; z-index: 50; font-weight: 900; color: var(--menta-scura); text-shadow: 0 2px 0 #fff; pointer-events: none; }
 .cliente { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: .8; transform: scale(.92); transition: transform .2s; }
 .cliente.primo { opacity: 1; transform: scale(1); }
-.cliente.entra { animation: entra .35s ease-out; }
-@keyframes entra { from { transform: translateY(16px) scale(.8); opacity: 0; } }
-.nuvoletta { width: 100%; background: #fff; border: 2px solid var(--linea); border-radius: 12px; padding: 4px; display: grid; gap: 2px; position: relative; }
+.cliente.entra { animation: entra .8s ease-out; }
+@keyframes entra { 0% { transform: translateX(160%); } 25% { transform: translateX(110%) translateY(-6px); } 50% { transform: translateX(60%); } 75% { transform: translateX(20%) translateY(-6px); } 100% { transform: none; } }
+.cliente.stufo .faccia { animation: freme .35s infinite; }
+@keyframes freme { 50% { transform: translateX(1.5px); } }
+.nuvoletta { width: 100%; background: #fff; border: 2px solid var(--linea); border-radius: 12px; padding: 3px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; position: relative; justify-items: center; }
 .nuvoletta::after { content: ""; position: absolute; bottom: -7px; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--linea); border-bottom: 0; }
 .cliente.primo .nuvoletta { border-color: var(--corallo-scuro); box-shadow: 0 0 0 2px var(--corallo); }
-.voce { display: flex; align-items: center; gap: 4px; font-size: .72rem; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; }
-.voce.ok { text-decoration: line-through; opacity: .5; }
+.voce { width: 100%; max-width: 26px; aspect-ratio: 1; position: relative; }
+.voce svg { width: 100%; height: 100%; display: block; }
+.voce.ok svg { opacity: .35; }
+.voce.ok::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--menta-scura); font-weight: 900; font-size: 1rem; }
 .pallino { width: 10px; height: 10px; flex: none; border-radius: 50%; border: 1.5px solid var(--linea); }
-.faccia { width: 62px; }
+.faccia { width: 50px; }
+.faccia svg { display: block; width: 100%; height: auto; }
 .pazienza { width: 80%; height: 6px; border-radius: 4px; background: #0001; overflow: hidden; }
 .pazienza span { display: block; height: 100%; background: var(--menta-scura); }
 .pazienza.bassa span { background: var(--corallo-scuro); }
 .tipo-cliente { font-size: .68rem; color: var(--tenue); font-weight: 700; }
 
-.bancone { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: center; background: #e9c9a0; border: 2px solid var(--linea); border-radius: 18px; padding: 8px; box-shadow: inset 0 -6px 0 #d4ad7f; }
-.chef { width: 84px; }
+.bancone { display: grid; grid-template-columns: 70px 1fr; gap: 10px; align-items: center; background: #e9c9a0; border: 2px solid var(--linea); border-radius: 18px; padding: 8px; box-shadow: inset 0 -6px 0 #d4ad7f; }
+.chef { width: 70px; }
 .ciotola-box { display: grid; gap: 8px; }
-.ciotola { min-height: 58px; background: var(--menta); border: 3px solid var(--linea); border-radius: 0 0 40px 40px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; justify-content: center; padding: 6px; }
-.ciotola:empty::before { content: "Tocca gli ingredienti"; font-size: .8rem; color: #0008; }
+.ciotola { height: 70px; display: grid; place-items: center; overflow: visible; }
+.ciotola svg { height: 70px; width: auto; max-width: 100%; overflow: visible; display: block; }
+.ciotola .pop { animation: pop .3s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes pop { 0% { transform: translateY(-18px) scale(.4); opacity: 0; } 70% { transform: translateY(2px) scale(1.1); } }
 .chip { display: inline-flex; align-items: center; gap: 4px; background: #fff; border: 1.5px solid var(--linea); border-radius: 10px; padding: 1px 6px; font-size: .75rem; font-weight: 700; }
 .azioni { display: grid; grid-template-columns: 1fr 1.6fr; gap: 8px; }
 
 .ingredienti { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.ingrediente { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; min-height: 70px; }
-.ingrediente .bollo { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--linea); }
+.ingrediente { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 3px 4px 5px; min-height: 56px; }
+.ingrediente .icona { width: 30px; height: 30px; }
+.ingrediente .icona svg { width: 100%; height: 100%; display: block; }
+.ingrediente.nuovo .icona { animation: rimbalza .3s ease-out; }
+@keyframes rimbalza { 50% { transform: scale(1.25) rotate(-6deg); } }
 .ingrediente .nome { font-size: .8rem; }
 .ingrediente .qta { position: absolute; top: 4px; right: 6px; font-size: .7rem; font-weight: 800; color: var(--tenue); }
 .ingrediente .tasto { position: absolute; top: 4px; left: 6px; font-size: .65rem; color: var(--tenue); }
@@ -154,4 +184,11 @@ input[type="range"] { width: 100%; accent-color: var(--corallo-scuro); height: 4
 
 @media (min-width: 700px) {
   .schermo { padding-top: 24px; }
+}
+
+.icona-mini { display: inline-block; width: 26px; height: 26px; vertical-align: middle; }
+.icona-mini svg { width: 100%; height: 100%; display: block; }
+.impostazioni button { min-width: 120px; }
+@media (prefers-reduced-motion: reduce) {
+  .cliente.entra, .cliente.stufo .faccia, .passante.no .faccia, .ciotola .pop, .ingrediente.nuovo .icona { animation: none; }
 }

@@ -24,8 +24,9 @@
         <button id="btnSfida" type="button">Sfida della settimana</button>
         <button id="btnAspetto" type="button">Il mio animaletto</button>
         <button id="btnGuida" type="button">Come si gioca</button>
+        <button id="btnImpostazioni" type="button">Impostazioni</button>
       </div>
-      <p class="nota">Playtest · prototipo del capitolo 1 · grafica provvisoria<br><a href="https://github.com/frengo1972/sala-zero-playtest/issues/new">Segnala un problema</a></p>
+      <p class="nota">Playtest · versione 0.2.0 · grafica provvisoria<br><a href="https://github.com/frengo1972/sala-zero-playtest/issues/new">Segnala un problema</a></p>
     </section>
 
     <section id="schermoServizio" class="schermo servizio" hidden aria-label="Servizio">
@@ -34,8 +35,13 @@
         <div class="tempo" aria-hidden="true"><span id="hudTempo"></span></div>
         <div id="hudCassa" class="cassa"></div>
         <div id="hudStelle" class="stelle"></div>
+        <button id="btnPausa" class="pausa" type="button" aria-label="Pausa (P)">❚❚</button>
       </header>
-      <div id="coda" class="coda" aria-live="polite"></div>
+      <div id="scena" class="scena">
+        <div id="strada" class="strada" aria-hidden="true"><div class="lavagna"><small>Menù</small><span>Ciotola</span><strong id="lavagnaPrezzo"></strong></div></div>
+        <div id="coda" class="coda" aria-live="polite"></div>
+        <div id="effetti" class="effetti" aria-hidden="true"></div>
+      </div>
       <div class="bancone">
         <div id="chef" class="chef"></div>
         <div class="ciotola-box">
@@ -77,6 +83,7 @@
   <script src="js/dati.js"></script>
   <script src="js/economia.js"></script>
   <script src="js/avatar.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>
