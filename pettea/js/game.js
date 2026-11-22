@@ -27,11 +27,17 @@
   }
 
   let avatar = leggi(CHIAVI.avatar, { nome: "Mochi", pelo: "crema", accessorio: "cappello", coloreAcc: "corallo" });
-  const avatarSvg = () => A.gattino({
-    pelo: D.pelo.find(p => p.id === avatar.pelo).colore,
-    accessorio: avatar.accessorio,
-    coloreAcc: D.coloriAccessorio.find(c => c.id === avatar.coloreAcc).colore
-  });
+  const TINTA_BASE = { fiocco: 0, bandana: 155 };
+  const avatarSvg = (posa = "felice") => {
+    const tinta = D.coloriAccessorio.find(c => c.id === avatar.coloreAcc).tinta;
+    const base = TINTA_BASE[avatar.accessorio];
+    return A.gattino({
+      filtro: D.pelo.find(p => p.id === avatar.pelo).filtro,
+      accessorio: avatar.accessorio,
+      coloreAcc: base === undefined ? null : `hue-rotate(${tinta - base}deg)${tinta === 255 ? " saturate(.8)" : ""}`,
+      posa
+    });
+  };
 
   // ---------- Impostazioni e audio ----------
   let imp = leggi(CHIAVI.impostazioni, { musica: true, suoni: true });
@@ -92,7 +98,7 @@
   }
 
   function benvenuto() {
-    finestra(`<div class="gufa carta"><div>${A.gufa()}</div><div>
+    finestra(`<div class="gufa carta"><div>${A.gufa("spiega")}</div><div>
       <p><strong>Benvenuta, benvenuto a Pettea!</strong> Sono la Dottoressa Gufa e ti aiuterò con i conti.</p>
       <p>${s.modo === "sfida"
         ? "Nella <strong>sfida della settimana</strong> tutti giocano lo stesso mese, con gli stessi clienti. Vince chi chiude con l'utile più alto."
@@ -131,8 +137,8 @@
     collegaPannello();
   }
 
-  function boxGufa(righe) {
-    return `<div class="carta gufa"><div>${A.gufa()}</div><div>${righe.map(r => `<p>${r}</p>`).join("")}</div></div>`;
+  function boxGufa(righe, umore = "spiega") {
+    return `<div class="carta gufa"><div>${A.gufa(umore)}</div><div>${righe.map(r => `<p>${r}</p>`).join("")}</div></div>`;
   }
 
   function pannelloGiornata() {
@@ -150,7 +156,8 @@
       const g = r.guardano[t.id] || 0, n = r.rinunce[t.id] || 0;
       return `<tr><td>${t.nome}</td><td class="num">${g}</td><td class="num">${g - n}</td><td class="num">${n}</td></tr>`;
     }).join("");
-    return `${boxGufa(E.consigli(r))}
+    const consigli = E.consigli(r);
+    return `${boxGufa(consigli, consigli[0].startsWith("Ottima") ? "contenta" : "preoccupata")}
       <div class="carta"><h3>Giorno ${r.giorno} · ${nomeGiorno(r.giorno)}</h3>
         <table class="tabella">
           <tr><td>Clienti serviti</td><td class="num">${r.serviti}${r.sbagliati ? ` + ${r.sbagliati} sbagliati` : ""}</td></tr>
@@ -279,7 +286,7 @@
       ${scelte("Pelo", D.pelo, avatar.pelo, true)}
       ${scelte("Accessorio", D.accessori, avatar.accessorio)}
       ${scelte("Colore", D.coloriAccessorio, avatar.coloreAcc, true)}
-      <p class="spiega">Per ora c'è solo il gattino: cagnolini, ochette, coniglietti e altri animaletti arrivano con la grafica definitiva.</p>
+      <p class="spiega">Per ora c'è solo il gattino: cagnolini, ochette, coniglietti e altri animaletti arriveranno nei prossimi aggiornamenti.</p>
     </div>`;
   }
 
@@ -365,7 +372,8 @@
       <p><strong>La sera</strong> compri le scorte al mercato (i freschi scadono!), scegli il prezzo e guardi i conti con la Dottoressa Gufa.</p>
       <p><strong>Ogni 10 giornate</strong> chiudi il mese: il conto economico ti dice quanto hai guadagnato davvero, e una medaglia premia i mesi migliori.</p>
       <p><strong>Sfida della settimana:</strong> lo stesso mese per tutti, con gli stessi clienti. Puoi rigiocarla quante volte vuoi.</p>
-      <p class="spiega">Tastiera: 1–9 ingredienti, Invio serve, Backspace butta, P mette in pausa. La partita si salva su questo dispositivo alla fine di ogni giornata.</p>`);
+      <p class="spiega">Tastiera: 1–9 ingredienti, Invio serve, Backspace butta, P mette in pausa. La partita si salva su questo dispositivo alla fine di ogni giornata.</p>
+      <p class="spiega">Immagini generate con ChatGPT (OpenAI) per Sala Zero. Musica ed effetti originali, generati dal gioco.</p>`);
   }
 
   // ---------- Servizio ----------
@@ -563,8 +571,15 @@
     for (const b of document.querySelectorAll("[data-ing]")) b.onclick = () => scegli(b.dataset.ing);
   }
 
+  let timerPosa;
+  function posaChef(posa, durata = 0) {
+    clearTimeout(timerPosa);
+    $("chef").innerHTML = avatarSvg(posa);
+    if (durata) timerPosa = setTimeout(() => { if (sv) $("chef").innerHTML = avatarSvg(ciotola.length ? "concentrato" : "felice"); }, durata);
+  }
+
   function disegnaCiotola() {
-    $("ciotola").innerHTML = A.ciotola(ciotola, ultimoAggiunto);
+    $("ciotola").innerHTML = A.ciotola(ciotola, ultimoAggiunto, id => E.ING[id].cat);
     $("ciotola").setAttribute("aria-label", ciotola.length ? `Ciotola: ${ciotola.map(id => E.ING[id].nome).join(", ")}` : "Ciotola vuota");
     $("btnServi").disabled = ciotola.length === 0 || sv.coda.length === 0;
     $("btnButta").disabled = ciotola.length === 0;
@@ -589,6 +604,7 @@
       ciotola.sort((a, b) => ordineCat.indexOf(E.ING[a].cat) - ordineCat.indexOf(E.ING[b].cat));
       ultimoAggiunto = id;
       PetteaAudio.ingrediente(ciotola.length - 1);
+      if (ciotola.length === 1) posaChef("concentrato");
     }
     disegnaCiotola();
     disegnaIngredienti();
@@ -606,10 +622,12 @@
     const rect = esci(n, r.giusto ? "felice" : "stufo", r.giusto ? "" : "Non è giusta!");
     if (r.giusto) {
       suono("servi");
+      posaChef("festeggia", 900);
       monete(rect, r.mancia, r.incasso);
       avviso(`${"★".repeat(r.stelle)}${r.mancia ? ` · mancia ${eur(r.mancia)}` : ""}`);
     } else {
       suono("errore");
+      posaChef("sorpreso", 900);
       monete(rect, 0, r.incasso);
       avviso(`Ciotola sbagliata: paga metà (${eur(r.incasso)}) · ★★`);
     }
@@ -624,6 +642,7 @@
     ciotola = [];
     ultimoAggiunto = null;
     suono("butta");
+    posaChef("sorpreso", 700);
     avviso(`Buttato: ${eur(costo)} di ingredienti`);
     disegnaCiotola();
     disegnaIngredienti();
@@ -685,8 +704,8 @@
     }
     scrivi(CHIAVI.record, rec);
     const mm = { ...m, giorni: [] };
-    const medaglia = m.medaglia ? `<div class="medaglia">${medagliaIcona(m.medaglia)}</div><p style="text-align:center"><strong>Medaglia ${D.medaglie.find(x => x.id === m.medaglia).nome.toLowerCase()}</strong></p>`
-      : `<p>Nessuna medaglia questo mese: il bronzo arriva con ${eur(D.medaglie[2].utile)} di utile.</p>`;
+    const medaglia = m.medaglia ? `<div class="gufa-grande">${A.gufa("applaude")}</div><div class="medaglia">${medagliaIcona(m.medaglia)}</div><p style="text-align:center"><strong>Medaglia ${D.medaglie.find(x => x.id === m.medaglia).nome.toLowerCase()}</strong></p>`
+      : `<div class="gufa-grande">${A.gufa("preoccupata")}</div><p>Nessuna medaglia questo mese: il bronzo arriva con ${eur(D.medaglie[2].utile)} di utile.</p>`;
     const diffCassa = m.cassaFine - m.cassaInizio;
     const corpo = `<h2>Fine del mese ${m.numero}</h2>${medaglia}
       ${tabellaConto(mm)}

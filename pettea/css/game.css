@@ -11,6 +11,7 @@
   --burro: #ffe08a;
   --rosso: #c94a4a;
   --ombra: 0 3px 0 #5a3d3d33;
+  --sabbia: #fbe7cc;
   color-scheme: light;
 }
 
@@ -58,21 +59,21 @@ h1, h2, h3 { margin: 0; }
 .stelle { white-space: nowrap; }
 
 .hud .pausa { min-height: 40px; min-width: 44px; padding: 4px 8px; font-size: .85rem; letter-spacing: -2px; }
-.scena { position: relative; overflow: hidden; border-radius: 18px; background: linear-gradient(#cdeffd 0 54px, #f7e7c9 54px); border: 2px solid var(--linea); padding: 0 6px 6px; }
-.strada { position: relative; height: 72px; }
-.strada::after { content: ""; position: absolute; left: -6px; right: -6px; bottom: 6px; height: 2px; background: #5a3d3d22; }
-.lavagna { position: absolute; right: 6px; top: 6px; width: 74px; padding: 4px 6px; background: #4d5b52; color: #fff; border: 3px solid #b08968; border-radius: 8px; text-align: center; line-height: 1.1; font-size: .7rem; z-index: 1; }
+.scena { position: relative; overflow: hidden; border-radius: 18px; background: var(--sabbia); border: 2px solid var(--linea); padding: 0 6px 6px; }
+.strada { position: relative; aspect-ratio: 3 / 1; max-height: 160px; margin: 0 -6px; background: url(../assets/scena/lungomare.webp) center bottom / cover no-repeat; }
+
+.lavagna { position: absolute; right: 3%; bottom: 26%; width: 66px; padding: 4px 6px; background: #4d5b52; color: #fff; border: 3px solid #b08968; border-radius: 8px; text-align: center; line-height: 1.1; font-size: .7rem; z-index: 1; }
 .lavagna small { display: block; color: var(--burro); }
 .lavagna strong { display: block; font-size: .9rem; }
-.passante { position: absolute; left: 0; bottom: 4px; width: 40px; z-index: 2; }
-.passante .faccia { width: 40px; }
+.passante { position: absolute; left: 0; bottom: 3%; width: 13%; max-width: 52px; z-index: 2; }
+.passante .faccia { width: 100%; }
 .passante.no .faccia { animation: scuotiTesta .5s 2; }
 @keyframes scuotiTesta { 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
 .pensiero { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #fff; border: 2px solid var(--linea); border-radius: 12px; padding: 2px 8px; font-size: .7rem; font-weight: 800; }
 .coda { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; min-height: 150px; align-items: end; }
 .effetti { position: absolute; inset: 0; pointer-events: none; }
 .fantasma { position: absolute; display: flex; flex-direction: column; align-items: center; }
-.fantasma .faccia { width: 60px; }
+.fantasma .faccia { width: 62px; }
 .fantasma .rabbia { width: 54px; margin-bottom: -8px; animation: sbuffa .4s ease-out; }
 .fantasma .pensiero { position: static; transform: none; margin-bottom: 2px; }
 @keyframes sbuffa { from { transform: scale(.2); opacity: 0; } }
@@ -88,31 +89,34 @@ h1, h2, h3 { margin: 0; }
 .nuvoletta::after { content: ""; position: absolute; bottom: -7px; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--linea); border-bottom: 0; }
 .cliente.primo .nuvoletta { border-color: var(--corallo-scuro); box-shadow: 0 0 0 2px var(--corallo); }
 .voce { width: 100%; max-width: 26px; aspect-ratio: 1; position: relative; }
-.voce svg { width: 100%; height: 100%; display: block; }
-.voce.ok svg { opacity: .35; }
+.voce img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.voce.ok img { opacity: .35; }
 .voce.ok::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--menta-scura); font-weight: 900; font-size: 1rem; }
 .pallino { width: 10px; height: 10px; flex: none; border-radius: 50%; border: 1.5px solid var(--linea); }
-.faccia { width: 50px; }
-.faccia svg { display: block; width: 100%; height: auto; }
+.faccia { width: 62px; }
+.faccia img, .fantasma .rabbia img, .moneta img { display: block; width: 100%; height: auto; }
+img { -webkit-user-drag: none; user-select: none; }
 .pazienza { width: 80%; height: 6px; border-radius: 4px; background: #0001; overflow: hidden; }
 .pazienza span { display: block; height: 100%; background: var(--menta-scura); }
 .pazienza.bassa span { background: var(--corallo-scuro); }
 .tipo-cliente { font-size: .68rem; color: var(--tenue); font-weight: 700; }
 
-.bancone { display: grid; grid-template-columns: 70px 1fr; gap: 10px; align-items: center; background: #e9c9a0; border: 2px solid var(--linea); border-radius: 18px; padding: 8px; box-shadow: inset 0 -6px 0 #d4ad7f; }
-.chef { width: 70px; }
+.bancone { display: grid; grid-template-columns: 76px 1fr; gap: 8px; align-items: end; background: url(../assets/scena/bancone.webp) center bottom / 100% 72% no-repeat; padding: 0 10px 12px; }
+.chef { width: 76px; margin-bottom: 18px; }
 .ciotola-box { display: grid; gap: 8px; }
-.ciotola { height: 70px; display: grid; place-items: center; overflow: visible; }
-.ciotola svg { height: 70px; width: auto; max-width: 100%; overflow: visible; display: block; }
-.ciotola .pop { animation: pop .3s ease-out; transform-box: fill-box; transform-origin: center; }
-@keyframes pop { 0% { transform: translateY(-18px) scale(.4); opacity: 0; } 70% { transform: translateY(2px) scale(1.1); } }
+.ciotola { height: 84px; display: grid; place-items: center; overflow: visible; }
+.ciotola-arte { position: relative; height: 84px; aspect-ratio: 1; }
+.ciotola-arte img { position: absolute; display: block; object-fit: contain; }
+.ciotola-arte .fondo { inset: 0; width: 100%; height: 100%; }
+.ciotola .pop { animation: pop .3s ease-out; }
+@keyframes pop { 0% { transform: translateY(-26px) scale(.4); opacity: 0; } 70% { transform: translateY(2px) scale(1.08); } }
 .chip { display: inline-flex; align-items: center; gap: 4px; background: #fff; border: 1.5px solid var(--linea); border-radius: 10px; padding: 1px 6px; font-size: .75rem; font-weight: 700; }
 .azioni { display: grid; grid-template-columns: 1fr 1.6fr; gap: 8px; }
 
 .ingredienti { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .ingrediente { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 3px 4px 5px; min-height: 56px; }
 .ingrediente .icona { width: 30px; height: 30px; }
-.ingrediente .icona svg { width: 100%; height: 100%; display: block; }
+.ingrediente .icona img { width: 100%; height: 100%; display: block; object-fit: contain; }
 .ingrediente.nuovo .icona { animation: rimbalza .3s ease-out; }
 @keyframes rimbalza { 50% { transform: scale(1.25) rotate(-6deg); } }
 .ingrediente .nome { font-size: .8rem; }
@@ -187,8 +191,15 @@ input[type="range"] { width: 100%; accent-color: var(--corallo-scuro); height: 4
 }
 
 .icona-mini { display: inline-block; width: 26px; height: 26px; vertical-align: middle; }
-.icona-mini svg { width: 100%; height: 100%; display: block; }
+.icona-mini img { width: 100%; height: 100%; display: block; object-fit: contain; }
 .impostazioni button { min-width: 120px; }
 @media (prefers-reduced-motion: reduce) {
   .cliente.entra, .cliente.stufo .faccia, .passante.no .faccia, .ciotola .pop, .ingrediente.nuovo .icona { animation: none; }
 }
+
+.gattino { position: relative; width: 100%; aspect-ratio: 4 / 5; }
+.gattino > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.gattino .accessorio { inset: auto; height: auto; }
+.gufa > div:first-child img { width: 56px; display: block; }
+.gufa-grande { width: 96px; margin: 0 auto -6px; }
+.gufa-grande img { width: 100%; display: block; }

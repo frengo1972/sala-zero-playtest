@@ -2,7 +2,7 @@
 
 // Dati di gioco di Pettea, capitolo 1. Gli importi sono in centesimi di euro.
 const PetteaDati = {
-  versione: "0.2.0",
+  versione: "0.3.0",
   salvataggio: "pettea-v1-playtest",
 
   giorniMese: 10,
@@ -84,11 +84,11 @@ const PetteaDati = {
 
   nomiAnimaletto: ["Mochi", "Pepe", "Nuvola", "Biscotto", "Miele", "Tofu"],
   pelo: [
-    { id: "crema", nome: "Crema", colore: "#f6e3c6" },
-    { id: "grigio", nome: "Grigio", colore: "#c9c6d6" },
-    { id: "arancio", nome: "Arancio", colore: "#f6b27a" },
-    { id: "nero", nome: "Nero", colore: "#5a5164" },
-    { id: "bianco", nome: "Bianco", colore: "#ffffff" }
+    { id: "crema", nome: "Crema", colore: "#f6e3c6", filtro: "sepia(.6) saturate(1.1) hue-rotate(-8deg) brightness(1.1)" },
+    { id: "grigio", nome: "Grigio", colore: "#c9c6d6", filtro: "none" },
+    { id: "arancio", nome: "Arancio", colore: "#f6b27a", filtro: "sepia(1) saturate(4.5) hue-rotate(-45deg) brightness(.92)" },
+    { id: "nero", nome: "Nero", colore: "#5a5164", filtro: "brightness(.55) contrast(1.15)" },
+    { id: "bianco", nome: "Bianco", colore: "#ffffff", filtro: "saturate(0) brightness(1.25)" }
   ],
   accessori: [
     { id: "nessuno", nome: "Nessuno" },
@@ -97,9 +97,9 @@ const PetteaDati = {
     { id: "cappello", nome: "Cappello da cuoco" }
   ],
   coloriAccessorio: [
-    { id: "corallo", colore: "#ff8f8f" },
-    { id: "menta", colore: "#7fd6b3" },
-    { id: "lavanda", colore: "#b9a2ee" }
+    { id: "corallo", colore: "#ff8f8f", tinta: 0 },
+    { id: "menta", colore: "#7fd6b3", tinta: 155 },
+    { id: "lavanda", colore: "#b9a2ee", tinta: 255 }
   ]
 };
 
