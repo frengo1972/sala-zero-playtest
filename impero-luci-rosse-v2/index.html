@@ -57,15 +57,15 @@
     <h2 id="scoreTitle">Classifica playtest</h2>
     <form method="dialog"><button class="x" aria-label="Chiudi classifica">✕</button></form>
   </div>
-  <p>Tempi più rapidi per raggiungere il livello Impero, in giorni di gioco.</p>
+  <p>Vale il livello più alto. A parità di livello conta il giorno di gioco più basso.</p>
   <p id="scoreRecord"></p>
   <p id="scoreBoardStatus" role="status"></p>
   <table id="scoreTable" hidden>
-    <thead><tr><th scope="col">Pos.</th><th scope="col">Alias</th><th scope="col">Giorno</th></tr></thead>
+    <thead><tr><th scope="col">Pos.</th><th scope="col">Alias</th><th scope="col">Livello</th><th scope="col">Giorno</th></tr></thead>
     <tbody id="scoreRows"></tbody>
   </table>
   <section id="scoreNotice" class="score-notice" hidden>
-    <p>Per pubblicare il record si crea un profilo ospite in questo browser. La classifica mostra un alias generato e il giorno di gioco. I risultati sono inviati dal gioco, senza verifica della partita.</p>
+    <p>Per pubblicare il record si crea un profilo ospite in questo browser. La classifica mostra un alias generato, il livello e il giorno di gioco. I risultati sono inviati dal gioco, senza verifica della partita.</p>
     <p>Supabase può trattare dati tecnici di connessione. Puoi eliminare il profilo e il record dal browser con cui li hai creati. Il record scade 180 giorni dopo l’ultima pubblicazione.</p>
     <p><a href="pagine/dati-classifica.html" target="_blank" rel="noopener">Dati della classifica</a></p>
     <div class="score-actions">
@@ -94,7 +94,7 @@
 
 <script src="js/media.js" defer></script>
 <script src="js/score-config.js" defer></script>
-<script src="js/leaderboard.js" defer></script>
-<script src="js/game.js" defer></script>
+<script src="js/leaderboard.js?v=progress-1" defer></script>
+<script src="js/game.js?v=progress-1" defer></script>
 </body>
 </html>

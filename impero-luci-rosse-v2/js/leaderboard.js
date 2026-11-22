@@ -13,6 +13,7 @@ const ImperoLeaderboard = (() => {
   const publishButton = document.getElementById("scorePublish");
   const removeButton = document.getElementById("scoreRemove");
   const notice = document.getElementById("scoreNotice");
+  let levels;
   let best = storedBest();
   let busy = false;
   let hasGuest = false;
@@ -24,27 +25,43 @@ const ImperoLeaderboard = (() => {
   }
 
   function storedBest() {
-    const day = Number(readStorage(recordKey));
-    return Number.isInteger(day) && day >= 1 && day <= 1000000 ? day : null;
+    try {
+      const saved = JSON.parse(readStorage(recordKey));
+      const score = typeof saved === "number" ? { level: 6, day: saved } : saved;
+      return validScore(score) ? score : null;
+    } catch { return null; }
+  }
+
+  function validScore(score) {
+    return score && Number.isInteger(score.level) && score.level >= 2 && score.level <= 6
+      && Number.isInteger(score.day) && score.day >= 1 && score.day <= 1000000;
+  }
+
+  function isBetter(score) {
+    return !best || score.level > best.level || (score.level === best.level && score.day < best.day);
   }
 
   function syncRecord() {
     const saved = storedBest();
-    if (saved !== null && (best === null || saved < best)) best = saved;
+    if (saved && isBetter(saved)) best = saved;
   }
 
-  function record(day) {
-    if (!Number.isInteger(day) || day < 1 || day > 1000000) return;
+  function record(score) {
+    if (!validScore(score)) return;
     syncRecord();
-    if (best !== null && day >= best) return;
-    best = day;
-    try { localStorage.setItem(recordKey, String(day)); } catch {}
+    if (!isBetter(score)) return;
+    best = score;
+    try { localStorage.setItem(recordKey, JSON.stringify(score)); } catch {}
+  }
+
+  function describe(level, day) {
+    return `${levels[level - 1].n}, giorno ${day.toLocaleString("it-IT")}`;
   }
 
   function renderControls() {
     recordText.textContent = best === null
-      ? "Raggiungi il livello Impero per registrare il tuo primo tempo."
-      : `Record su questo browser: giorno ${best.toLocaleString("it-IT")}.`;
+      ? "Raggiungi Micro-studio con € 6.000 di incassi cumulativi per pubblicare il primo traguardo."
+      : `Record su questo browser: ${describe(best.level, best.day)}.`;
     publishButton.hidden = !config;
     publishButton.disabled = busy || best === null;
     removeButton.hidden = !config || !(hasGuest || readStorage(sessionKey));
@@ -61,7 +78,7 @@ const ImperoLeaderboard = (() => {
     const request = ++boardRequest;
     boardStatus.textContent = "Caricamento della classifica…";
     try {
-      const response = await fetch(new URL("/rest/v1/rpc/impero_public_scores", config.url), {
+      const response = await fetch(new URL("/rest/v1/rpc/impero_public_progress", config.url), {
         headers: { apikey: config.publishableKey },
         signal: AbortSignal.timeout(10000)
       });
@@ -73,6 +90,7 @@ const ImperoLeaderboard = (() => {
         const row = rows.insertRow();
         row.insertCell().textContent = String(index + 1);
         row.insertCell().textContent = score.alias;
+        row.insertCell().textContent = levels[score.best_level - 1].n;
         row.insertCell().textContent = Number(score.best_day).toLocaleString("it-IT");
       }
       table.hidden = data.length === 0;
@@ -105,8 +123,9 @@ const ImperoLeaderboard = (() => {
   }
 
   async function publish(client) {
-    const day = best;
-    if (day === null) return;
+    syncRecord();
+    const score = best;
+    if (!score) return;
     const session = await client.auth.getSession();
     if (session.error) throw session.error;
     if (!session.data.session) {
@@ -114,9 +133,10 @@ const ImperoLeaderboard = (() => {
       if (guest.error) throw guest.error;
     }
     hasGuest = true;
-    const result = await client.rpc("impero_submit_score", { p_day: day });
+    const result = await client.rpc("impero_submit_progress", { p_level: score.level, p_day: score.day });
     if (result.error) throw result.error;
-    actionStatus.textContent = `Record pubblico di ${result.data[0].alias}: giorno ${result.data[0].best_day.toLocaleString("it-IT")}.`;
+    const published = result.data[0];
+    actionStatus.textContent = `Record pubblico di ${published.alias}: ${describe(published.best_level, published.best_day)}.`;
   }
 
   async function remove(client) {
@@ -163,8 +183,9 @@ const ImperoLeaderboard = (() => {
 
   return {
     record,
-    open() {
+    open(gameLevels) {
       if (dialog.open) return;
+      levels = gameLevels;
       syncRecord();
       actionStatus.textContent = "";
       renderControls();

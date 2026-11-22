@@ -294,14 +294,17 @@ function checkLevel() {
   if (L > S.level) {
     S.level = L; refreshCands(10); sfx("level"); burst(30);
     const unl = { 2: "Sbloccati: ClipBazar, loft, cinepresa, regista, montatore, affiliati.", 3: "Sbloccati: il tuo sito, la villa, luci cinema, legale e fiere.", 4: "Sbloccati: licenze VOD, teatro di posa, kit 8K, agente.", 5: "Seconda troupe: produzioni più rapide.", 6: "" }[L];
-    const choices = [{ l: L === 6 ? "Continua a regnare" : "Avanti!", c: "gold" }];
+    const choices = [
+      { l: L === 6 ? "Continua a regnare" : "Avanti!", c: "gold" },
+      { l: "Apri la classifica", f: () => ImperoLeaderboard.open(LEVELS) },
+    ];
     if (L === 6) {
       S.won = true;
       S.imperoDay = S.day;
-      ImperoLeaderboard.record(S.imperoDay);
-      save();
-      choices.push({ l: "Apri la classifica", f: () => ImperoLeaderboard.open() });
     }
+    S.scoreCheckpoint = { level: L, day: S.day };
+    ImperoLeaderboard.record(S.scoreCheckpoint);
+    save();
     showModal({ kick: "good", tag: "NUOVO LIVELLO", title: LEVELS[L - 1].n.toUpperCase(), text: (L === 6 ? "Ce l'hai fatta: dalla camera da letto a un impero dei media. Puoi continuare a giocare e crescere ancora." : unl), choices });
   }
 }
@@ -878,7 +881,7 @@ SH.release = () => {
 
 // ======================================================================= actions
 const ACT = {
-  scores() { ImperoLeaderboard.open(); },
+  scores() { ImperoLeaderboard.open(LEVELS); },
   portrait(d) {
     const t = S.roster.find(talent => talent.id === d.id) || S.cands.find(talent => talent.id === d.id);
     if (!t) return;
@@ -1245,8 +1248,18 @@ $("gateNo").onclick = () => { location.href = "../"; };
 $("newGame").onclick = () => { ac(); S = newState(($("studioName").value || "Studio Rosso").trim().slice(0, 18)); refreshCands(); S.cands[0].docIssue = ""; S.cands[0].share = true; S.cands[0].fame = Math.min(S.cands[0].fame, 12); start(); setTimeout(() => toast("Inizia da TALENTI: ingaggia il primo talento, poi premi GIRA"), 600); };
 $("contGame").onclick = () => { ac(); S = load(); start(); };
 $("guideBtn").onclick = () => { $("gate").classList.add("off"); if (!S) { S = newState("Studio Rosso"); refreshCands(); S._tmp = true; } sheetKind = "books"; sheetTab = "guida"; $("sheet").classList.add("on"); renderSheet(); };
-$("scoreMenu").onclick = () => ImperoLeaderboard.open();
-function start() { delete S._tmp; ImperoLeaderboard.record(S.imperoDay); $("gate").classList.add("off"); shown.cash = S.cash; shown.subs = S.subs; shown.fol = S.followers; shown.fame = S.fame; refresh(); nextTicker(); save(); }
+$("scoreMenu").onclick = () => ImperoLeaderboard.open(LEVELS);
+function start() {
+  delete S._tmp;
+  if (S.level >= 2 && S.scoreCheckpoint?.level !== S.level) {
+    const day = S.level === 6 ? (S.imperoDay ?? S.day) : S.day;
+    S.scoreCheckpoint = { level: S.level, day };
+  }
+  ImperoLeaderboard.record(S.scoreCheckpoint);
+  $("gate").classList.add("off");
+  shown.cash = S.cash; shown.subs = S.subs; shown.fol = S.followers; shown.fame = S.fame;
+  refresh(); nextTicker(); save();
+}
 // back to title after reading the guide without a game
 const _close = closeSheet; closeSheet = function () { _close(); if (S && S._tmp) { S = null; showTitle(); } };
 try { if (localStorage.getItem("impero-18") === "1") showTitle(); } catch (e) { }
